@@ -1,0 +1,28 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #f6f8fb;
+  color: #0f172a;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.bus-marker {
+  height: 24px;
+  width: 24px;
+  border: 3px solid #ffffff;
+  border-radius: 999px;
+  background: #0f766e;
+  box-shadow: 0 8px 18px rgb(15 23 42 / 30%);
+}
