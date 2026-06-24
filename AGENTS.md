@@ -42,7 +42,7 @@ Next.js 기반 버스 관제 프론트엔드 구현.
 API 명세의 Base URL:
 
 ```env
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/v1
+NEXT_PUBLIC_API_BASE_URL=https://heojineee.ddnsking.com/v1
 ```
 
 환경 변수에 이미 `/v1`이 포함되어 있으므로, API 함수에서는 아래처럼 호출한다.
