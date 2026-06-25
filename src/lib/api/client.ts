@@ -1,6 +1,6 @@
 import type { ApiErrorResponse } from "@/types/api";
 
-const DEFAULT_API_BASE_URL = "https://heojineee.ddnsking.com/v1";
+const DEFAULT_API_BASE_URL = "https://heojineee.ddnsking.com";
 
 export class ApiError extends Error {
   code: string;

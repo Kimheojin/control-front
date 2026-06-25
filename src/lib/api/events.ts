@@ -15,7 +15,7 @@ export async function getBusEvents(
   });
 
   return apiFetch<BusEventResponse>(
-    `/buses/${busId}/events?${searchParams.toString()}`,
+    `/v1/buses/${busId}/events?${searchParams.toString()}`,
     { signal },
   );
 }

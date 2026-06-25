@@ -8,8 +8,15 @@ import { ErrorMessage } from "@/components/common/ErrorMessage";
 import { Loading } from "@/components/common/Loading";
 import { SearchInput } from "@/components/common/SearchInput";
 import { getBuses } from "@/lib/api/buses";
+import { getErrorMessage } from "@/lib/api/client";
+import {
+  getCurrentSimulation,
+  startSimulation,
+} from "@/lib/api/simulations";
+import { formatDateTime } from "@/lib/format";
 import { usePolling } from "@/lib/polling";
 import type { BusStatus } from "@/types/bus";
+import type { SimulationCurrentResponse } from "@/types/simulation";
 
 const PAGE_SIZE = 20;
 
@@ -87,6 +94,8 @@ export default function HomePage() {
         </div>
       </header>
 
+      <SimulationControlPanel />
+
       <section className="flex flex-wrap items-end gap-4 rounded border border-slate-200 bg-white p-4">
         <SearchInput value={keyword} onChange={setKeyword} />
         <fieldset className="flex flex-col gap-2 text-sm font-medium text-slate-700">
@@ -154,5 +163,153 @@ export default function HomePage() {
         )}
       </section>
     </main>
+  );
+}
+
+function SimulationControlPanel() {
+  const [startErrorMessage, setStartErrorMessage] = useState<string | null>(
+    null,
+  );
+  const [startSuccessMessage, setStartSuccessMessage] = useState<string | null>(
+    null,
+  );
+  const [isStarting, setIsStarting] = useState(false);
+
+  const fetcher = useCallback(
+    (signal: AbortSignal) => getCurrentSimulation(signal),
+    [],
+  );
+  const { data, errorMessage, isLoading, isRefreshing, refetch } =
+    usePolling<SimulationCurrentResponse>({
+      fetcher,
+    });
+
+  const handleStart = async () => {
+    setIsStarting(true);
+    setStartErrorMessage(null);
+    setStartSuccessMessage(null);
+
+    try {
+      const response = await startSimulation();
+      setStartSuccessMessage(
+        `시뮬레이션을 시작했습니다. 종료 예정: ${formatDateTime(
+          response.endsAt,
+        )}`,
+      );
+      await refetch();
+    } catch (error) {
+      setStartErrorMessage(getErrorMessage(error));
+    } finally {
+      setIsStarting(false);
+    }
+  };
+
+  const isRunning = data?.running ?? false;
+
+  return (
+    <section className="rounded border border-slate-200 bg-white p-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 className="text-lg font-bold text-slate-950">
+              Simulator 실행
+            </h2>
+            <span
+              className={[
+                "inline-flex items-center rounded border px-2.5 py-1 text-xs font-semibold",
+                isRunning
+                  ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                  : "border-slate-300 bg-slate-100 text-slate-700",
+              ].join(" ")}
+            >
+              <span
+                aria-hidden="true"
+                className={[
+                  "mr-1.5 h-2 w-2 rounded-full",
+                  isRunning ? "bg-emerald-500" : "bg-slate-500",
+                ].join(" ")}
+              />
+              {isRunning ? "RUNNING" : "STOPPED"}
+            </span>
+            {isRefreshing ? (
+              <span className="text-xs font-semibold text-slate-500">
+                상태 갱신 중
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-2 text-sm text-slate-600">
+            Seed Data 기반 Mock telemetry 생성을 simulator 서버에 요청합니다.
+          </p>
+        </div>
+
+        <button
+          aria-label="시뮬레이션 시작"
+          className="h-10 rounded bg-teal-700 px-4 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-600"
+          disabled={isLoading || isStarting || isRunning}
+          type="button"
+          onClick={handleStart}
+        >
+          {isStarting ? "시작 중" : "시뮬레이션 시작"}
+        </button>
+      </div>
+
+      {isLoading && !data ? (
+        <div className="mt-4">
+          <Loading label="Simulator 상태를 불러오는 중입니다." />
+        </div>
+      ) : data ? (
+        <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
+          <SimulationMetric
+            label="시작 시각"
+            value={data.startedAt ? formatDateTime(data.startedAt) : "-"}
+          />
+          <SimulationMetric
+            label="종료 예정"
+            value={data.endsAt ? formatDateTime(data.endsAt) : "-"}
+          />
+          <SimulationMetric
+            label="Tick"
+            value={data.tickCount.toLocaleString("ko-KR")}
+          />
+          <SimulationMetric
+            label="전송/실패"
+            value={`${data.sentCount.toLocaleString(
+              "ko-KR",
+            )} / ${data.failureCount.toLocaleString("ko-KR")}`}
+          />
+        </dl>
+      ) : null}
+
+      {startSuccessMessage ? (
+        <p className="mt-3 rounded border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          {startSuccessMessage}
+        </p>
+      ) : null}
+      {startErrorMessage ? (
+        <div className="mt-3">
+          <ErrorMessage message={startErrorMessage} />
+        </div>
+      ) : null}
+      {errorMessage ? (
+        <div className="mt-3">
+          <ErrorMessage message={errorMessage} />
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function SimulationMetric({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded border border-slate-200 bg-slate-50 px-3 py-2">
+      <dt className="text-xs font-semibold text-slate-500">{label}</dt>
+      <dd className="mt-1 text-sm font-semibold text-slate-900">{value}</dd>
+    </div>
   );
 }

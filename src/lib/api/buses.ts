@@ -38,12 +38,12 @@ export async function getBuses(
   signal?: AbortSignal,
 ): Promise<BusPage> {
   const searchParams = buildBusListSearchParams(params);
-  return apiFetch<BusPage>(`/buses?${searchParams.toString()}`, { signal });
+  return apiFetch<BusPage>(`/v1/buses?${searchParams.toString()}`, { signal });
 }
 
 export async function getBusDetail(
   busId: number,
   signal?: AbortSignal,
 ): Promise<BusDetail> {
-  return apiFetch<BusDetail>(`/buses/${busId}`, { signal });
+  return apiFetch<BusDetail>(`/v1/buses/${busId}`, { signal });
 }

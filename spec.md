@@ -5,10 +5,12 @@
   - `/buses/[busId]`: 버스 상세, 현재 위치 지도, 최근 이벤트
 
 - 사용 API
-  - `GET {NEXT_PUBLIC_API_BASE_URL}/buses`
-  - `GET {NEXT_PUBLIC_API_BASE_URL}/buses/{busId}`
-  - `GET {NEXT_PUBLIC_API_BASE_URL}/buses/{busId}/events`
-  - `NEXT_PUBLIC_API_BASE_URL`은 `/v1` 포함 값을 사용하며 프론트엔드에서 `/v1`을 추가하지 않음
+  - `GET {NEXT_PUBLIC_API_BASE_URL}/v1/buses`
+  - `GET {NEXT_PUBLIC_API_BASE_URL}/v1/buses/{busId}`
+  - `GET {NEXT_PUBLIC_API_BASE_URL}/v1/buses/{busId}/events`
+  - `GET {NEXT_PUBLIC_API_BASE_URL}/v2/simulations/current`
+  - `POST {NEXT_PUBLIC_API_BASE_URL}/v2/simulations/start`
+  - `NEXT_PUBLIC_API_BASE_URL`은 API origin까지만 포함하며, `/v1`과 `/v2`는 API 함수에서 명시함
 
 - 제외 API
   - `endpoint.md` 6번 `POST /v1/internal/telemetry`는 Simulator/Internal 전용이라 구현 및 호출 제외
@@ -16,6 +18,7 @@
 
 - 목록 기능
   - 버스번호, 노선명, 현재속도, 현재상태, 마지막 통신시간 표시
+  - Simulator 현재 상태 조회 및 실행 시작 버튼 제공
   - 버스번호/노선명 검색은 300ms debounce 적용
   - `ONLINE` / `OFFLINE` / 전체 상태 필터 제공
   - 검색어 또는 상태 변경 시 `page=0`으로 초기화
