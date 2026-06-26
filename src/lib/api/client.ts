@@ -1,7 +1,7 @@
 import type { ApiErrorResponse } from "@/types/api";
 
-const DEFAULT_API_BASE_URL = "https://heojineee.ddnsking.com";
-
+// const DEFAULT_API_BASE_URL = "https://heojineee.ddnsking.com";
+const DEFAULT_API_BASE_URL = "https://192.168.219.106";
 export class ApiError extends Error {
   code: string;
   status?: number;
