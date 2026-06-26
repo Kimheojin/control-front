@@ -39,13 +39,17 @@ Next.js 기반 버스 관제 프론트엔드 구현.
 
 ## 3. API 기준
 
-API 명세의 Base URL:
+API 명세의 Base URL은 접속 환경에 따라 아래 둘 중 하나를 사용한다.
 
 ```env
-NEXT_PUBLIC_API_BASE_URL=https://heojineee.ddnsking.com/v1
+# 외부 접속용
+NEXT_PUBLIC_API_BASE_URL=https://heojineee.ddnsking.com
+
+# 같은 공유기 내부 서버 접속용
+NEXT_PUBLIC_API_BASE_URL=https://192.168.219.106
 ```
 
-환경 변수에 이미 `/v1`이 포함되어 있으므로, API 함수에서는 아래처럼 호출한다.
+API 함수에서는 아래처럼 호출한다.
 
 ```ts
 getBuses() // GET {BASE_URL}/buses
